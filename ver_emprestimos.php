@@ -24,9 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['excluir_id'])) {
 }
 
 // Consulta para listar empréstimos
-$sql = "SELECT e.id, a.nome AS nome_aluno, l.nome_livro AS livro, e.data_emprestimo
+$sql = "SELECT e.id, a.nome AS nome_aluno, p.nome AS nome_professor, l.nome_livro AS livro, e.data_emprestimo
         FROM emprestimos e
         JOIN alunos a ON e.aluno_id = a.id
+        JOIN professores p ON e.professor_id = p.id
         JOIN livros l ON e.livro_id = l.id";
 
 $result = $conn->query($sql);
@@ -42,54 +43,90 @@ if (!$result) {
     <title>Ver Empréstimos</title>
     <style>
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f4f4f4;
-        }
-        h2 {
-            text-align: center;
-        }
-        table {
-            width: 80%;
-            margin: auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 30px;
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        form {
-            margin: 0;
-        }
-        button {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #c0392b;
-        }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 40px 0;
+    background-color: #FFC0CB;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    text-align: center;
+    color: #FF69B4;
+    margin-bottom: 30px;
+}
+
+table {
+    width: 90%;
+    max-width: 900px;
+    border-collapse: collapse;
+    background-color: #FFB6C1;
+    box-shadow: 0 0 15px #FF69B4;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 14px 16px;
+    text-align: center;
+    border-bottom: 1px solid #FF69B4;
+    color: #4a0033;
+}
+
+th {
+    background-color: #FF69B4;
+    color: white;
+    font-size: 16px;
+}
+
+tr:nth-child(even) {
+    background-color: #FFC0CB;
+}
+
+tr:hover {
+    background-color: #ffe0ec;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 30px;
+    color: #FF69B4;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #FF1493;
+}
+
+form {
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+}
+
+button {
+    background-color: #FF69B4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px auto;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #FF1493;
+}
+
     </style>
 </head>
 <body>
@@ -100,6 +137,7 @@ if (!$result) {
     <tr>
         <th>ID</th>
         <th>Nome do Aluno</th>
+        <th>Professor</th>
         <th>Livro</th>
         <th>Data do Empréstimo</th>
         <th>Ações</th>
@@ -109,6 +147,7 @@ if (!$result) {
         <tr>
             <td><?= htmlspecialchars($row['id']) ?></td>
             <td><?= htmlspecialchars($row['nome_aluno']) ?></td>
+            <td><?= htmlspecialchars($row['nome_professor']) ?></td>
             <td><?= htmlspecialchars($row['livro']) ?></td>
             <td><?= htmlspecialchars($row['data_emprestimo']) ?></td>
             <td>

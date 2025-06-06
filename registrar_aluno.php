@@ -28,34 +28,84 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Cadastrar Aluno</title>
     <style>
-        body{
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
             background-image: url('./img/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center; /* horizontal */
+            align-items: center; /* vertical */
         }
+
         form {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
             max-width: 400px;
-            margin: 0 auto;
-        }
-        label, input {
-            display: block;
             width: 100%;
-            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <h1>Cadastrar Aluno</h1>
     <form method="post" action="">
+        <h1>Cadastrar Aluno</h1>
+
         <label for="nome">Nome do aluno:</label>
-        <input type="text" id="nome" name="nome" required>
+        <input type="text" id="nome" name="nome" required />
 
         <label for="serie">Série:</label>
-        <input type="text" id="serie" name="serie" required>
+        <input type="text" id="serie" name="serie" required />
 
         <label for="email">Email:</label>
-        <input type="text" id="email" name="email" required>
+        <input type="text" id="email" name="email" required />
 
         <button type="submit">Salvar</button>
     </form>
