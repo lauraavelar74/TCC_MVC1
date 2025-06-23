@@ -107,7 +107,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="email">Email:</label>
         <input type="text" id="email" name="email" required />
 
-        <button type="submit">Salvar</button>
+        <div style="display: flex; gap: 10px;">
+    <button type="submit" style="flex: 1; background-color: #4CAF50;">Salvar</button>
+    <a href="painel.php" style="
+        flex: 1;
+        background-color: #ff69b4;
+        color: white;
+        text-align: center;
+        padding: 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 16px;
+        display: inline-block;
+    ">Voltar</a>
+</div>
     </form>
 </body>
 </html>

@@ -191,7 +191,22 @@ $livros = query($pdo, "SELECT id, nome_livro FROM livros");
             </tr>
         </table>
 
-        <input type="submit" value="Registrar Empréstimo">
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+    <div style="flex: 1;">
+        <input type="submit" value="Registrar Empréstimo" style="width: 100%; background-color: #d6336c; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 8px; cursor: pointer;">
+    </div>
+    <a href="painel.php" style="
+        flex: 1;
+        background-color: rgb(255, 0, 115);
+        color: white;
+        padding: 12px;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 16px;
+        display: inline-block;
+    ">Voltar ao Painel</a>
+</div>
     </form>
 </div>
 

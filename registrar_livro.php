@@ -129,7 +129,11 @@ $conn->close();
             <label for="isbn">ISBN</label>
             <input type="text" id="isbn" name="isbn" value="<?= htmlspecialchars($isbn) ?>" required>
 
-            <button type="submit" name="registrar">Registrar Livro</button>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+    <button type="submit" name="registrar" style="flex: 1; padding: 20px; background-color: #F08080; border: none; color: white; font-weight: bold; border-radius: 15px; cursor: pointer;">Registrar Livro</button>
+    
+    <a href="painel.php" style="flex: 1; display: inline-block; text-align: center; padding: 20px; background-color: #FF69B4; color: white; font-weight: bold; border-radius: 15px; text-decoration: none;">Voltar</a>
+</div>
         </form>
     </div>
 </body>
