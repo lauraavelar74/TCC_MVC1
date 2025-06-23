@@ -1,68 +1,48 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 include 'db.php';
 
-// Processar envio do formulário
+// Configurações PDO
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+// Se o formulário foi enviado:
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $livro_id = $_POST['livro_id'] ?? null;
+    // Coleta os dados enviados
     $professor_id = $_POST['professor_id'] ?? null;
     $aluno_id = $_POST['aluno_id'] ?? null;
-    $data_emprestimo = $_POST['data_emprestimo'] ?? date('Y-m-d');
+    $livro_id = $_POST['livro_id'] ?? null;
+    $data_emprestimo = $_POST['data_emprestimo'] ?? null;
     $data_devolucao = $_POST['data_devolucao'] ?? null;
 
-    if ($livro_id && $professor_id && $aluno_id && $data_devolucao) {
-        $stmt = $conn->prepare("INSERT INTO emprestimos (livro_id, professor_id, aluno_id, data_emprestimo, data_devolucao) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("iiiss", $livro_id, $professor_id, $aluno_id, $data_emprestimo, $data_devolucao);
+    // Validação simples
+    if ($professor_id && $aluno_id && $livro_id && $data_emprestimo && $data_devolucao) {
+        try {
+            // Prepara e executa o INSERT
+            $stmt = $pdo->prepare("INSERT INTO emprestimos (id_professor, id_aluno, id_livro, data_emprestimo, data_devolucao)
+            VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$professor_id, $aluno_id, $livro_id, $data_emprestimo, $data_devolucao]);
 
-        if ($stmt->execute()) {
-            header("Location: ver_emprestimos.php");
-            exit();
-        } else {
-            echo "Erro ao registrar empréstimo: " . $stmt->error;
+            echo "<p class='success'>Empréstimo registrado com sucesso!</p>";
+        } catch (PDOException $e) {
+            echo "<p class='error'>Erro ao registrar empréstimo: " . $e->getMessage() . "</p>";
         }
-
-        $stmt->close();
     } else {
-        echo "Todos os campos são obrigatórios.";
+        echo "<p class='error'>Preencha todos os campos!</p>";
     }
 }
-?>
 
-php
-Copy code
-<?php
-// Dados para conexão com o banco de dados
-$servername = "localhost";
-$username = "seu_usuario";
-$password = "sua_senha";
-$dbname = "nome_do_banco";
-
-// Cria a conexão com o banco de dados
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Verifica a conexão
-if ($conn->connect_error) {
-    die("Erro de conexão: " . $conn->connect_error);
-}
-
-// Função para verificar e retornar o resultado da consulta ou o erro
-function query($conn, $sql) {
-    $result = $conn->query($sql);
+// Consultas para os selects
+function query($pdo, $sql) {
+    $result = $pdo->query($sql);
     if (!$result) {
-        die("Erro na consulta: " . $conn->error);
+        die("Erro na consulta: " . $pdo->errorInfo()[2]);
     }
     return $result;
 }
 
-// Busca os dados dos professores, alunos e livros
-$professores = query($conn, "SELECT id, nome FROM professores");
-$alunos = query($conn, "SELECT id, nome FROM alunos");
-$livros = query($conn, "SELECT id, titulo FROM livros");
-
-// Fecha a conexão após buscar os dados
-$conn->close();
+$professores = query($pdo, "SELECT id, nome FROM professores");
+$alunos = query($pdo, "SELECT id, nome FROM alunos");
+$livros = query($pdo, "SELECT id, nome_livro FROM livros");
 ?>
 
 <!DOCTYPE html>
@@ -70,43 +50,150 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <title>Registrar Empréstimo de Livro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #ffe6f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff0f6;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+            width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #d6336c;
+            margin-bottom: 25px;
+        }
+
+        form table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 15px;
+        }
+
+        form label {
+            color: #a83264;
+            font-weight: bold;
+        }
+
+        form select, form input[type="date"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #d6336c;
+            border-radius: 6px;
+            background-color: #fff0f6;
+            color: #6f2a47;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        form select:focus, form input[type="date"]:focus {
+            border-color: #ff66b2;
+        }
+
+        form input[type="submit"] {
+            background-color: #d6336c;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        form input[type="submit"]:hover {
+            background-color: #ff66b2;
+        }
+
+        .success {
+            color: #2f9e44;
+            background-color: #d3f9d8;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #c92a2a;
+            background-color: #ffe3e3;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Registrar Empréstimo</h2>
+<div class="container">
+    <h2>Registrar Empréstimo</h2>
 
-<form action="registrar_emprestimo.php" method="post">
-    <label for="professor">Professor Responsável:</label>
-    <select name="professor_id" id="professor" required>
-        <?php while ($row = $professores->fetch_assoc()) { ?>
-            <option value="<?php echo $row['id']; ?>"><?php echo $row['nome']; ?></option>
-        <?php } ?>
-    </select><br><br>
+    <form action="registrar_emprestimo.php" method="post">
+        <table>
+            <tr>
+                <td><label for="professor">Professor Responsável:</label></td>
+                <td>
+                    <select name="professor_id" id="professor" required>
+                        <?php while ($row = $professores->fetch()) { ?>
+                            <option value="<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row['nome']); ?></option>
+                        <?php } ?>
+                    </select>
+                </td>
+            </tr>
 
-    <label for="aluno">Aluno:</label>
-    <select name="aluno_id" id="aluno" required>
-        <?php while ($row = $alunos->fetch_assoc()) { ?>
-            <option value="<?php echo $row['id']; ?>"><?php echo $row['nome']; ?></option>
-        <?php } ?>
-    </select><br><br>
+            <tr>
+                <td><label for="aluno">Aluno:</label></td>
+                <td>
+                    <select name="aluno_id" id="aluno" required>
+                        <?php while ($row = $alunos->fetch()) { ?>
+                            <option value="<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row['nome']); ?></option>
+                        <?php } ?>
+                    </select>
+                </td>
+            </tr>
 
-    <label for="livro">Livro:</label>
-    <select name="livro_id" id="livro" required>
-        <?php while ($row = $livros->fetch_assoc()) { ?>
-            <option value="<?php echo $row['id']; ?>"><?php echo $row['titulo']; ?></option>
-        <?php } ?>
-    </select><br><br>
+            <tr>
+                <td><label for="livro">Livro:</label></td>
+                <td>
+                    <select name="livro_id" id="livro" required>
+                        <?php while ($row = $livros->fetch()) { ?>
+                            <option value="<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row['nome_livro']); ?></option>
+                        <?php } ?>
+                    </select>
+                </td>
+            </tr>
 
-    <!-- Campos para datas de empréstimo e devolução -->
-    <label for="data_emprestimo">Data de Empréstimo:</label>
-    <input type="date" name="data_emprestimo" id="data_emprestimo" required><br><br>
+            <tr>
+                <td><label for="data_emprestimo">Data de Empréstimo:</label></td>
+                <td><input type="date" name="data_emprestimo" id="data_emprestimo" required></td>
+            </tr>
 
-    <label for="data_devolucao">Data de Devolução:</label>
-    <input type="date" name="data_devolucao" id="data_devolucao" required><br><br>
+            <tr>
+                <td><label for="data_devolucao">Data de Devolução:</label></td>
+                <td><input type="date" name="data_devolucao" id="data_devolucao" required></td>
+            </tr>
+        </table>
 
-    <!-- Botão para submeter o formulário -->
-    <input type="submit" value="Registrar Empréstimo">
-</form>
+        <input type="submit" value="Registrar Empréstimo">
+    </form>
+</div>
 
 </body>
 </html>

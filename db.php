@@ -1,11 +1,11 @@
 <?php
-$host = 'localhost';
+$servername = 'localhost';
 $dbname = 'biblioteca_mvc';
-$user = 'root';
-$pass = '';
+$username = 'root';
+$password = '';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
+    $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
 } catch (PDOException $e) {
     die("Erro na conexão: " . $e->getMessage());
 }
