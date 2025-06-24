@@ -53,7 +53,7 @@ $valoresLivros = array_column($livros, 'total');
       display: flex; flex-direction: column; justify-content: center;
     }
     .left-side {
-      background: rgba(255,105,180,0.3);
+      background: rgba(255, 0, 140, 0.59);
     }
     .left-side h1, .left-side h2 {
       margin: 0; text-shadow: 2px 2px 4px #900046;
@@ -86,9 +86,9 @@ $valoresLivros = array_column($livros, 'total');
     }
     .chart-box {
       flex: 1 1 400px; background: #fff; padding: 20px;
-      border-radius: 10px; box-shadow: 0 4px 10px rgba(214,51,108,0.3);
+      border-radius: 10px; box-shadow: 0 4px 10px rgb(255, 0, 111);
     }
-    canvas { max-width: 100%; height: 300px; }
+    canvas { max-width: 70%; height: 200px; }
     @media (max-width: 900px) {
       .main-container { flex-direction: column; }
       .left-side h1 { font-size: 2rem; }
@@ -120,11 +120,11 @@ $valoresLivros = array_column($livros, 'total');
   <h2>Estatísticas de Empréstimos - <?= htmlspecialchars($mes) ?></h2>
   <div class="charts-container">
     <div class="chart-box">
-      <h3>Alunos com mais livros diferentes</h3>
+      <h3>leitores em destaque</h3>
       <canvas id="chartAlunos"></canvas>
     </div>
     <div class="chart-box">
-      <h3>Livros mais emprestados para alunos diferentes</h3>
+      <h3>Livros mais emprestados</h3>
       <canvas id="chartLivros"></canvas>
     </div>
   </div>
@@ -137,18 +137,45 @@ $valoresLivros = array_column($livros, 'total');
   const valoresLivros = <?= json_encode($valoresLivros) ?>;
   const cores = ['#d6336c', '#ff66b2', '#f8bbd0', '#a83264', '#f06292', '#e91e63', '#c2185b', '#ad1457', '#880e4f', '#f48fb1'];
 
+  const legendaEstilizada = {
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          color: '#333',
+          font: {
+            size: 14,
+            weight: 'bold'
+          },
+          padding: 20
+        }
+      }
+    }
+  };
+
   new Chart(document.getElementById('chartAlunos'), {
     type: 'pie',
-    data: { labels: labelsAlunos, datasets: [{ data: valoresAlunos, backgroundColor: cores }] },
-    options: { plugins: { legend: { position: 'bottom' } } }
+    data: {
+      labels: labelsAlunos,
+      datasets: [{
+        data: valoresAlunos,
+        backgroundColor: cores
+      }]
+    },
+    options: legendaEstilizada
   });
 
   new Chart(document.getElementById('chartLivros'), {
     type: 'pie',
-    data: { labels: labelsLivros, datasets: [{ data: valoresLivros, backgroundColor: cores }] },
-    options: { plugins: { legend: { position: 'bottom' } } }
+    data: {
+      labels: labelsLivros,
+      datasets: [{
+        data: valoresLivros,
+        backgroundColor: cores
+      }]
+    },
+    options: legendaEstilizada
   });
 </script>
-
 </body>
 </html>

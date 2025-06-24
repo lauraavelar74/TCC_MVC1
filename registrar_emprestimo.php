@@ -22,12 +22,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$professor_id, $aluno_id, $livro_id, $data_emprestimo, $data_devolucao]);
 
-            echo "<p class='success'>Empréstimo registrado com sucesso!</p>";
+            $msg = "<p class='success'>Empréstimo registrado com sucesso!</p>";
         } catch (PDOException $e) {
-            echo "<p class='error'>Erro ao registrar empréstimo: " . $e->getMessage() . "</p>";
+            $msg = "<p class='error'>Erro ao registrar empréstimo: " . $e->getMessage() . "</p>";
         }
     } else {
-        echo "<p class='error'>Preencha todos os campos!</p>";
+        $msg = "<p class='error'>Preencha todos os campos!</p>";
     }
 }
 
@@ -51,22 +51,66 @@ $livros = query($pdo, "SELECT id, nome_livro FROM livros");
     <meta charset="UTF-8">
     <title>Registrar Empréstimo de Livro</title>
     <style>
+        /* Layout com sidebar igual painel */
         body {
             font-family: Arial, sans-serif;
-            background: #ffe6f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            height: 100vh;
+            display: flex;
+            background-color: #ffe4e1; /* rosa claro */
+            color: #000;
         }
 
-        .container {
+        /* Sidebar igual painel.php */
+        .sidebar {
+            width: 220px;
+            background-color: rgba(255, 182, 193, 0.8);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 3px 0 10px rgba(255, 105, 180, 0.6);
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            margin-bottom: 30px;
+            color: #000;
+        }
+
+        .sidebar form {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            background-color: rgba(255, 105, 180, 0.9);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 3px 6px rgba(255, 105, 180, 0.7);
+        }
+
+        .sidebar button:hover {
+            background-color: rgba(219, 112, 147, 0.9);
+            box-shadow: 0 5px 10px rgba(219, 112, 147, 0.9);
+        }
+
+        /* Conteúdo principal ao lado da sidebar */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
             background: #fff0f6;
-            padding: 30px 40px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
-            width: 400px;
+            max-width: 600px;
+            margin: 40px;
         }
 
         h2 {
@@ -138,12 +182,59 @@ $livros = query($pdo, "SELECT id, nome_livro FROM livros");
             text-align: center;
             font-weight: bold;
         }
+
+        /* Container dos botões "Registrar" e "Voltar" lado a lado */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-group a {
+            flex: 1;
+            background-color: rgb(255, 0, 115);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            display: inline-block;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-group a:hover {
+            background-color: #ff4ca1;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="sidebar">
+    <h2>Menu</h2>
+    <form action="ver_emprestimos.php" method="get">
+        <button type="submit">Ver Empréstimos</button>
+    </form>
+    <form action="registrar_emprestimo.php" method="get">
+        <button type="submit">Registrar Empréstimo</button>
+    </form>
+    <form action="registrar_aluno.php" method="get">
+        <button type="submit">Registrar Aluno</button>
+    </form>
+    <form action="registrar_livro.php" method="get">
+        <button type="submit">Registrar Livros</button>
+    </form>
+    <form action="buscar_livros.php" method="get">
+        <button type="submit">Buscar Livros</button>
+    </form>
+</div>
+
+<div class="main-content">
     <h2>Registrar Empréstimo</h2>
+
+    <?php if (!empty($msg)) echo $msg; ?>
 
     <form action="registrar_emprestimo.php" method="post">
         <table>
@@ -191,22 +282,10 @@ $livros = query($pdo, "SELECT id, nome_livro FROM livros");
             </tr>
         </table>
 
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-    <div style="flex: 1;">
-        <input type="submit" value="Registrar Empréstimo" style="width: 100%; background-color: #d6336c; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 8px; cursor: pointer;">
-    </div>
-    <a href="painel.php" style="
-        flex: 1;
-        background-color: rgb(255, 0, 115);
-        color: white;
-        padding: 12px;
-        text-align: center;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 16px;
-        display: inline-block;
-    ">Voltar ao Painel</a>
-</div>
+        <div class="btn-group">
+            <input type="submit" value="Registrar Empréstimo" />
+            <a href="painel.php">Voltar ao Painel</a>
+        </div>
     </form>
 </div>
 

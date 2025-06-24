@@ -36,7 +36,6 @@ if (!$resultTodos) {
 }
 
 // Consulta para listar empréstimos atrasados:
-// data_devolucao IS NULL e data_emprestimo + 7 dias < hoje
 $sqlAtrasados = "SELECT e.id, a.nome AS nome_aluno, p.nome AS nome_professor, l.nome_livro AS livro, 
                  e.data_emprestimo, e.data_devolucao
                  FROM emprestimos e
@@ -57,20 +56,77 @@ if (!$resultAtrasados) {
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ver Empréstimos e Atrasos</title>
 <style>
+    /* === Layout geral com sidebar igual painel === */
     body {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 40px;
-        background-color: #FFC0CB;
+        height: 100vh;
+        display: flex;
+        background-color: #ffe4e1; /* rosa claro */
+        color: #000;
     }
 
+    /* Sidebar igual painel.php */
+    .sidebar {
+        width: 220px;
+        background-color: rgba(255, 182, 193, 0.8);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 3px 0 10px rgba(255, 105, 180, 0.6);
+    }
+
+    .sidebar h2 {
+        font-size: 22px;
+        margin-bottom: 30px;
+        color: #000;
+    }
+
+    .sidebar form {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .sidebar button {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+        background-color: rgba(255, 105, 180, 0.9);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 3px 6px rgba(255, 105, 180, 0.7);
+    }
+
+    .sidebar button:hover {
+        background-color: rgba(219, 112, 147, 0.9);
+        box-shadow: 0 5px 10px rgba(219, 112, 147, 0.9);
+    }
+
+    /* Conteúdo principal */
+    .main-content {
+        flex: 1;
+        padding: 40px;
+        overflow-y: auto;
+    }
+
+    h1, h2 {
+        color: #4a0033;
+        margin-bottom: 20px;
+    }
+
+    /* Containers das tabelas lado a lado em telas maiores */
     .flex-container {
         display: flex;
-        justify-content: center;
         gap: 40px;
         flex-wrap: wrap;
+        justify-content: flex-start;
     }
 
     .container {
@@ -81,12 +137,7 @@ if (!$resultAtrasados) {
         max-width: 600px;
         flex: 1 1 500px;
         min-width: 300px;
-    }
-
-    h2 {
-        color: #FF69B4;
-        margin-bottom: 20px;
-        text-align: center;
+        overflow-x: auto; /* para tabela não estourar */
     }
 
     table {
@@ -94,6 +145,7 @@ if (!$resultAtrasados) {
         border-collapse: collapse;
         border-radius: 12px;
         overflow: hidden;
+        table-layout: fixed;
     }
 
     th, td {
@@ -102,6 +154,7 @@ if (!$resultAtrasados) {
         border-bottom: 1px solid #FF69B4;
         color: #4a0033;
         font-size: 14px;
+        word-wrap: break-word;
     }
 
     th {
@@ -118,24 +171,32 @@ if (!$resultAtrasados) {
         background-color: #ffe0ec;
     }
 
-    form {
-        margin: 0;
+    /* Coluna Ações */
+    th.actions, td.actions {
+        width: 100px;
+        white-space: nowrap;
     }
 
-    button {
+    td.actions form button {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 0;
+        font-size: 14px;
         background-color: #FF69B4;
         color: white;
         border: none;
-        padding: 6px 12px;
         border-radius: 6px;
         cursor: pointer;
         font-weight: bold;
         transition: background-color 0.3s ease;
-        font-size: 14px;
     }
 
-    button:hover {
+    td.actions form button:hover {
         background-color: #FF1493;
+    }
+
+    form {
+        margin: 0;
     }
 
     a {
@@ -156,85 +217,110 @@ if (!$resultAtrasados) {
 </head>
 <body>
 
-<div class="flex-container">
-    <div class="container">
-        <h2>Todos os Empréstimos</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Aluno</th>
-                    <th>Professor</th>
-                    <th>Livro</th>
-                    <th>Empréstimo</th>
-                    <th>Devolução</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php while ($row = $resultTodos->fetch_assoc()): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['id']) ?></td>
-                    <td><?= htmlspecialchars($row['nome_aluno']) ?></td>
-                    <td><?= htmlspecialchars($row['nome_professor']) ?></td>
-                    <td><?= htmlspecialchars($row['livro']) ?></td>
-                    <td><?= htmlspecialchars(date('d/m/Y', strtotime($row['data_emprestimo']))) ?></td>
-                    <td>
-                        <?= 
-                            $row['data_devolucao'] 
-                            ? htmlspecialchars(date('d/m/Y', strtotime($row['data_devolucao']))) 
-                            : "<em>Não devolvido</em>" 
-                        ?>
-                    </td>
-                    <td>
-                        <form method="POST" onsubmit="return confirm('Excluir este empréstimo?');">
-                            <input type="hidden" name="excluir_id" value="<?= $row['id'] ?>">
-                            <button type="submit">Excluir</button>
-                        </form>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-            </tbody>
-        </table>
-        <a href="registrar_emprestimo.php">← Registrar novo empréstimo</a>
-    </div>
+<!-- Sidebar igual painel.php -->
+<div class="sidebar">
+    <h2>Menu</h2>
+    <form action="ver_emprestimos.php" method="get">
+        <button type="submit">Ver Empréstimos</button>
+    </form>
+    <form action="registrar_emprestimo.php" method="get">
+        <button type="submit">Registrar Empréstimo</button>
+    </form>
+    <form action="registrar_aluno.php" method="get">
+        <button type="submit">Registrar Aluno</button>
+    </form>
+    <form action="registrar_livro.php" method="get">
+        <button type="submit">Registrar Livros</button>
+    </form>
+    <form action="buscar_livros.php" method="get">
+        <button type="submit">Buscar Livros</button>
+    </form>
+</div>
 
-    <div class="container">
-        <h2>Empréstimos Atrasados</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Aluno</th>
-                    <th>Professor</th>
-                    <th>Livro</th>
-                    <th>Empréstimo</th>
-                    <th>Atraso (dias)</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php while ($row = $resultAtrasados->fetch_assoc()):
-                $dataEmprestimo = strtotime($row['data_emprestimo']);
-                $diasAtraso = floor((time() - ($dataEmprestimo + 7*86400)) / 86400);
-            ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['id']) ?></td>
-                    <td><?= htmlspecialchars($row['nome_aluno']) ?></td>
-                    <td><?= htmlspecialchars($row['nome_professor']) ?></td>
-                    <td><?= htmlspecialchars($row['livro']) ?></td>
-                    <td><?= htmlspecialchars(date('d/m/Y', $dataEmprestimo)) ?></td>
-                    <td><?= $diasAtraso ?></td>
-                    <td>
-                        <form method="POST" onsubmit="return confirm('Excluir este empréstimo?');">
-                            <input type="hidden" name="excluir_id" value="<?= $row['id'] ?>">
-                            <button type="submit">Excluir</button>
-                        </form>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-            </tbody>
-        </table>
+<!-- Conteúdo principal -->
+<div class="main-content">
+    <h1>Empréstimos</h1>
+
+    <div class="flex-container">
+        <div class="container">
+            <h2>Todos os Empréstimos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Aluno</th>
+                        <th>Professor</th>
+                        <th>Livro</th>
+                        <th>Empréstimo</th>
+                        <th>Devolução</th>
+                        <th class="actions">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php while ($row = $resultTodos->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['id']) ?></td>
+                        <td><?= htmlspecialchars($row['nome_aluno']) ?></td>
+                        <td><?= htmlspecialchars($row['nome_professor']) ?></td>
+                        <td><?= htmlspecialchars($row['livro']) ?></td>
+                        <td><?= htmlspecialchars(date('d/m/Y', strtotime($row['data_emprestimo']))) ?></td>
+                        <td>
+                            <?= 
+                                $row['data_devolucao'] 
+                                ? htmlspecialchars(date('d/m/Y', strtotime($row['data_devolucao']))) 
+                                : "<em>Não devolvido</em>" 
+                            ?>
+                        </td>
+                        <td class="actions">
+                            <form method="POST" onsubmit="return confirm('Excluir este empréstimo?');">
+                                <input type="hidden" name="excluir_id" value="<?= $row['id'] ?>">
+                                <button type="submit">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+                </tbody>
+            </table>
+            <a href="registrar_emprestimo.php">← Registrar novo empréstimo</a>
+        </div>
+
+        <div class="container">
+            <h2>Empréstimos Atrasados</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Aluno</th>
+                        <th>Professor</th>
+                        <th>Livro</th>
+                        <th>Empréstimo</th>
+                        <th>Atraso (dias)</th>
+                        <th class="actions">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php while ($row = $resultAtrasados->fetch_assoc()):
+                    $dataEmprestimo = strtotime($row['data_emprestimo']);
+                    $diasAtraso = floor((time() - ($dataEmprestimo + 7*86400)) / 86400);
+                ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['id']) ?></td>
+                        <td><?= htmlspecialchars($row['nome_aluno']) ?></td>
+                        <td><?= htmlspecialchars($row['nome_professor']) ?></td>
+                        <td><?= htmlspecialchars($row['livro']) ?></td>
+                        <td><?= htmlspecialchars(date('d/m/Y', $dataEmprestimo)) ?></td>
+                        <td><?= $diasAtraso ?></td>
+                        <td class="actions">
+                            <form method="POST" onsubmit="return confirm('Excluir este empréstimo?');">
+                                <input type="hidden" name="excluir_id" value="<?= $row['id'] ?>">
+                                <button type="submit">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
