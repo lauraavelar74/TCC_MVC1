@@ -50,7 +50,6 @@ if (isset($_GET['busca_local'])) {
             $sql = "$col = :v";
             $params = [':v' => $q];
         } else {
-            // Busca dividindo o termo em palavras para busca AND
             $palavras = preg_split('/\s+/', $q);
             $clausulas = [];
             $params = [];
@@ -75,114 +74,53 @@ if (isset($_GET['busca_local'])) {
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Livros</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #f0f0f0;
-        }
-        h1 {
-            text-align: center;
-        }
-        .search-box {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        input, select, button {
-            padding: 10px;
-            font-size: 1rem;
-        }
-        button {
-            background: #06c;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #049;
-        }
-        .results {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            padding: 0 20px 40px;
-        }
-        .book-card {
-            background: #fff;
-            padding: 15px;
-            text-align: center;
-            border-radius: 6px;
-            box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-        }
-        .book-card img {
-            max-width: 128px;
-            height: auto;
-            margin-bottom: 10px;
-        }
-        .register-btn {
-            margin-top: 10px;
-            background: #28a745;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: background 0.3s;
-        }
-        .register-btn:hover {
-            background: #218838;
-        }
-        .message {
-            text-align: center;
-            color: green;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .error {
-            text-align: center;
-            color: red;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        #loadMoreBtn {
-            display: block;
-            margin: 0 auto 40px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            background: #06c;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-        #loadMoreBtn:hover {
-            background: #049;
-        }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Buscar Livros</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <h1>Buscador de Livros</h1>
-    <?php if ($msg): ?>
-        <div class="message"><?= $msg ?></div>
-    <?php endif; ?>
-    <div class="search-box">
-        <input id="query" placeholder="Título, autor ou ISBN" autocomplete="off" />
-        <select id="searchType">
-            <option value="title">Título</option>
-            <option value="author">Autor</option>
-            <option value="isbn">ISBN</option>
-        </select>
-        <button onclick="buscarLivro(true)">Buscar</button>
+    <div class="sidebar">
+        <form action="painel.php" method="get">
+            <button type="submit">🏠 Casa</button>
+        </form>
+
+        <h2>Menu</h2>
+
+        <form action="ver_emprestimos.php" method="get">
+            <button type="submit">Ver Empréstimos</button>
+        </form>
+        <form action="registrar_emprestimo.php" method="get">
+            <button type="submit">Registrar Empréstimo</button>
+        </form>
+        <form action="registrar_aluno.php" method="get">
+            <button type="submit">Registrar Aluno</button>
+        </form>
+        <form action="registrar_livro.php" method="get">
+            <button type="submit">Registrar Livros</button>
+        </form>
+        <form action="buscar_livros.php" method="get">
+            <button type="submit">Buscar Livros</button>
+        </form>
     </div>
-    <div id="resultado" class="results"></div>
-    <div id="erro" class="error"></div>
-    <button id="loadMoreBtn" style="display:none" onclick="buscarLivro(false)">Carregar mais</button>
+    <div class="main-content">
+        <h1>Buscador de Livros</h1>
+        <?php if ($msg): ?>
+            <div class="message"><?= $msg ?></div>
+        <?php endif; ?>
+        <div class="search-box">
+            <input id="query" placeholder="Título, autor ou ISBN" autocomplete="off" />
+            <select id="searchType">
+                <option value="title">Título</option>
+                <option value="author">Autor</option>
+                <option value="isbn">ISBN</option>
+            </select>
+            <button onclick="buscarLivro(true)">Buscar</button>
+        </div>
+        <div id="resultado" class="results"></div>
+        <div id="erro" class="error"></div>
+        <button id="loadMoreBtn" style="display:none" onclick="buscarLivro(false)">Carregar mais</button>
+    </div>
 
     <script>
         let startIndex = 0;

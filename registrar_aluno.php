@@ -23,164 +23,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Cadastrar Aluno</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        background-color: #ffe4e1; /* rosa claro */
-        color: #000;
-    }
-
-    .sidebar {
-        width: 220px;
-        background-color: rgba(255, 182, 193, 0.8);
-        padding: 30px 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        box-shadow: 3px 0 10px rgba(255, 105, 180, 0.6);
-    }
-
-    .sidebar h2 {
-        font-size: 22px;
-        margin-bottom: 30px;
-        color: #000;
-    }
-
-    .sidebar form {
-        width: 100%;
-        margin-bottom: 15px;
-    }
-
-    .sidebar button {
-        width: 100%;
-        padding: 10px;
-        font-size: 15px;
-        background-color: rgba(255, 105, 180, 0.9);
-        color: #000;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 3px 6px rgba(255, 105, 180, 0.7);
-    }
-
-    .sidebar button:hover {
-        background-color: rgba(219, 112, 147, 0.9);
-        box-shadow: 0 5px 10px rgba(219, 112, 147, 0.9);
-    }
-
-    .main-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 40px;
-    }
-
-    h1 {
-        margin-bottom: 30px;
-        font-size: 28px;
-        color: #000;
-    }
-
-    table {
-        border-collapse: separate;
-        border-spacing: 0 12px;
-        background-color: rgba(255, 182, 193, 0.5);
-        padding: 20px 30px;
-        border-radius: 10px;
-        box-shadow: 0 5px 8px rgba(255, 182, 193, 0.7);
-    }
-
-    td {
-        background-color: rgba(255, 192, 203, 0.9);
-        border-radius: 10px;
-        padding: 12px 40px;
-        text-align: center;
-        box-shadow: 0 3px 5px rgba(255, 105, 180, 0.5);
-    }
-
-    form.cadastro-aluno {
-        background-color: rgba(255, 255, 255, 0.95);
-        padding: 30px 40px;
-        border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.3);
-        max-width: 400px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    form.cadastro-aluno h1 {
-        text-align: center;
-        color: #333;
-        margin-bottom: 20px;
-        font-size: 28px;
-    }
-
-    form.cadastro-aluno label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: bold;
-        color: #333;
-    }
-
-    form.cadastro-aluno input {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-        box-sizing: border-box;
-    }
-
-    form.cadastro-aluno button[type="submit"] {
-        width: 100%;
-        padding: 12px;
-        background-color: rgb(255, 0, 140);
-        border: none;
-        border-radius: 5px;
-        color: white;
-        font-weight: bold;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    form.cadastro-aluno button[type="submit"]:hover {
-        background-color: rgb(255, 0, 217);
-    }
-
-    form.cadastro-aluno a.voltar {
-        display: inline-block;
-        width: 100%;
-        background-color: #ff69b4;
-        color: white;
-        text-align: center;
-        padding: 12px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 16px;
-        margin-top: 10px;
-        cursor: pointer;
-    }
-</style>
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <div class="sidebar">
+    <form action="painel.php" method="get">
+        <button type="submit">🏠 Casa</button>
+    </form>
     <h2>Menu</h2>
     <form action="ver_emprestimos.php" method="get">
         <button type="submit">Ver Empréstimos</button>
