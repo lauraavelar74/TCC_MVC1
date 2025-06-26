@@ -60,16 +60,120 @@ body {
     padding: 50px 40px;
     background-color: #fff0f6;
     overflow-x: auto;
+    max-width: 1000px;
 }
 
 /* Título */
-h1 {
+h1, h2 {
     margin-bottom: 40px;
     font-size: 32px;
     font-weight: 700;
     color: #c71585; /* medium violet red */
     text-align: center;
     text-shadow: 1px 1px 4px #f8bbd0;
+}
+
+/* Formulários */
+form.cadastro-aluno,
+form.cadastro-livro,
+form.cadastro-emprestimo,
+form.form-emprestimo {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+#emprestimo {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+form.cadastro-aluno label,
+form.cadastro-livro label,
+form.cadastro-emprestimo label,
+form.form-emprestimo label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #880e4f;
+    margin-top: 15px;
+}
+
+form.cadastro-aluno input,
+form.cadastro-livro input,
+form.cadastro-emprestimo input,
+form.form-emprestimo input,
+form.cadastro-aluno select,
+form.cadastro-livro select,
+form.cadastro-emprestimo select,
+form.form-emprestimo select,
+form.cadastro-aluno textarea,
+form.cadastro-livro textarea,
+form.cadastro-emprestimo textarea,
+form.form-emprestimo textarea {
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 2px solid #ffc1e3;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    outline: none;
+}
+
+form.cadastro-aluno input:focus,
+form.cadastro-livro input:focus,
+form.cadastro-emprestimo input:focus,
+form.form-emprestimo input:focus,
+form.cadastro-aluno select:focus,
+form.cadastro-livro select:focus,
+form.cadastro-emprestimo select:focus,
+form.form-emprestimo select:focus,
+form.cadastro-aluno textarea:focus,
+form.cadastro-livro textarea:focus,
+form.cadastro-emprestimo textarea:focus,
+form.form-emprestimo textarea:focus {
+    border-color: #c71585;
+}
+
+/* Botões dentro do formulário */
+form.cadastro-aluno button,
+form.cadastro-livro button,
+form.cadastro-emprestimo button,
+form.form-emprestimo input[type="submit"] {
+    margin-top: 30px;
+    padding: 12px 0;
+    background-color: rgba(255, 105, 180, 0.95);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 105, 180, 0.6);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+}
+
+form.cadastro-aluno button:hover,
+form.cadastro-livro button:hover,
+form.cadastro-emprestimo button:hover,
+form.form-emprestimo input[type="submit"]:hover {
+    background-color: rgba(219, 112, 147, 0.95);
+    box-shadow: 0 7px 18px rgba(219, 112, 147, 0.9);
+}
+
+/* Remove o link voltar */
+a.voltar {
+    display: none;
 }
 
 /* Tabela moderna em cards */
@@ -172,5 +276,12 @@ tbody td::before {
     }
     tbody td::before {
         margin-bottom: 4px;
+    }
+    form.cadastro-aluno,
+    form.cadastro-livro,
+    form.cadastro-emprestimo,
+    form.form-emprestimo {
+        padding: 20px;
+        max-width: 100%;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 // Seu código PHP permanece igual
-include ('../db.php');
+include ('db.php');
 
 $conn = new mysqli("localhost", "root", "", "biblioteca_mvc"); 
 if ($conn->connect_error) {
@@ -157,8 +157,6 @@ $conn->close();
 
             <button type="submit">Registrar</button>
         </form>
-
-        <a href="../index.php">Voltar para o painel</a>
     </div>
 </body>
 </html>

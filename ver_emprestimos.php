@@ -86,7 +86,7 @@ if (!$resultAtrasados) {
 <div class="main-content">
     <h1>Empréstimos</h1>
 
-    <div class="flex-container">
+    <div class="flex-container" id='emprestimo'>
         <div class="container">
             <h2>Todos os Empréstimos</h2>
             <table>
