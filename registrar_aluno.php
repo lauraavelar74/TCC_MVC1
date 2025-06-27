@@ -1,43 +1,68 @@
 <?php
-// Conexão com o banco de dados
-$host = "localhost";
-$db = "biblioteca_mvc";
-$user = "root";
-$pass = "";
+// Conexão com o banco de dados usando PDO
+$pdo = new PDO("mysql:host=localhost;dbname=biblioteca_mvc;charset=utf8mb4", 'root', '', [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,       // Ativa mensagens de erro para exceções
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,  // Retorna os dados como arrays associativos
+]);
 
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
+// Variável para mensagens de sucesso ou erro
+$msg = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome = $conn->real_escape_string($_POST["nome"] ?? '');
-    $serie = $conn->real_escape_string($_POST["serie"] ?? '');
-    $email = $conn->real_escape_string($_POST["email"] ?? '');
+// Verifica se o formulário foi enviado por método POST
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Captura e limpa os dados enviados pelo formulário
+    $nome = trim($_POST["nome"] ?? '');
+    $serie = trim($_POST["serie"] ?? '');
+    $email = trim($_POST["email"] ?? '');
 
-    $sql = "INSERT INTO alunos (nome, serie, email) VALUES ('$nome', '$serie', '$email')";
-    if ($conn->query($sql) === TRUE) {
-        echo "<script>alert('Aluno cadastrado com sucesso!');</script>";
+    // Verifica se todos os campos foram preenchidos
+    if ($nome && $serie && $email) {
+        try {
+            // Prepara a instrução SQL para inserir o aluno
+            $stmt = $pdo->prepare("INSERT INTO alunos (nome, serie, email) VALUES (:nome, :serie, :email)");
+
+            // Executa o comando SQL com os valores fornecidos
+            $stmt->execute([
+                ':nome' => $nome,
+                ':serie' => $serie,
+                ':email' => $email
+            ]);
+
+            // Define a mensagem de sucesso
+            $msg = "Aluno cadastrado com sucesso!";
+        } catch (PDOException $e) {
+            // Em caso de erro no banco, exibe a mensagem
+            $msg = "Erro ao cadastrar: " . $e->getMessage();
+        }
     } else {
-        echo "Erro ao cadastrar: " . $conn->error;
+        // Caso algum campo esteja vazio, exibe aviso
+        $msg = "Preencha todos os campos.";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cadastrar Aluno</title>
-<link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Registrar Aluno</title>
+    <!-- Importa o arquivo CSS com os estilos -->
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
+<!-- Menu lateral (sidebar) -->
 <div class="sidebar">
+    <!-- Botão para voltar à tela inicial -->
     <form action="painel.php" method="get">
         <button type="submit">🏠 Casa</button>
     </form>
+
+    <!-- Título do menu -->
     <h2>Menu</h2>
+
+    <!-- Botões de navegação para as demais páginas -->
     <form action="ver_emprestimos.php" method="get">
         <button type="submit">Ver Empréstimos</button>
     </form>
@@ -53,22 +78,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form action="buscar_livros.php" method="get">
         <button type="submit">Buscar Livros</button>
     </form>
+    <form action="registrar_professor.php" method="get">
+        <button type="submit">Registrar Professor</button>
+    </form>
+    <form action="relatorio.php" method="get">
+        <button type="submit">Relatório</button>
+    </form>
 </div>
 
+<!-- Conteúdo principal da página -->
 <div class="main-content">
-    <form class="cadastro-aluno" method="post" action="">
-        <h1>Cadastrar Aluno</h1>
+    <!-- Título da página -->
+    <h1>Cadastro de Aluno</h1>
 
+    <!-- Exibe mensagem de sucesso ou erro, se houver -->
+    <?php if ($msg): ?>
+        <div class="message"><?= htmlspecialchars($msg) ?></div>
+    <?php endif; ?>
+
+    <!-- Formulário de cadastro do aluno -->
+    <form method="post" class="cadastro-aluno">
+        <!-- Campo para nome do aluno -->
         <label for="nome">Nome do aluno:</label>
-        <input type="text" id="nome" name="nome" required />
+        <input type="text" id="nome" name="nome" required>
 
+        <!-- Campo para série -->
         <label for="serie">Série:</label>
-        <input type="text" id="serie" name="serie" required />
+        <input type="text" id="serie" name="serie" required>
 
+        <!-- Campo para email -->
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required />
+        <input type="email" id="email" name="email" required>
 
+        <!-- Botão para enviar o formulário -->
         <button type="submit">Salvar</button>
+
+        <!-- Link oculto para voltar ao painel -->
         <a class="voltar" href="painel.php">Voltar</a>
     </form>
 </div>

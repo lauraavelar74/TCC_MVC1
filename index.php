@@ -132,8 +132,7 @@ $livros = $stmt->fetchAll();
         <input type="password" name="senha" placeholder="Senha" required>
         <button type="submit">Login</button>
       </form>
-      <!-- Link para página de cadastro -->
-      <a href="./backend/registrar_professor.php">Não tem uma conta? Cadastre-se</a>
+      <!-- Aqui o link foi removido -->
     </div>
   </div>
 </div>

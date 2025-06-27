@@ -1,37 +1,39 @@
 <?php
 include 'db.php';
 
-// Configurações PDO
+// Configurações PDO para tratar erros e formato dos dados
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-// Se o formulário foi enviado:
+$msg = ''; // Mensagem para feedback ao usuário
+
+// Se o formulário foi enviado via POST:
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Coleta os dados enviados
+    // Coleta dados do formulário, usa null se não existir
     $professor_id = $_POST['professor_id'] ?? null;
     $aluno_id = $_POST['aluno_id'] ?? null;
     $livro_id = $_POST['livro_id'] ?? null;
     $data_emprestimo = $_POST['data_emprestimo'] ?? null;
     $data_devolucao = $_POST['data_devolucao'] ?? null;
 
-    // Validação simples
+    // Verifica se todos os campos foram preenchidos
     if ($professor_id && $aluno_id && $livro_id && $data_emprestimo && $data_devolucao) {
         try {
-            // Prepara e executa o INSERT
+            // Insere o empréstimo no banco de dados
             $stmt = $pdo->prepare("INSERT INTO emprestimos (id_professor, id_aluno, id_livro, data_emprestimo, data_devolucao)
-            VALUES (?, ?, ?, ?, ?)");
+                VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$professor_id, $aluno_id, $livro_id, $data_emprestimo, $data_devolucao]);
 
             $msg = "<p class='success'>Empréstimo registrado com sucesso!</p>";
         } catch (PDOException $e) {
-            $msg = "<p class='error'>Erro ao registrar empréstimo: " . $e->getMessage() . "</p>";
+            $msg = "<p class='error'>Erro ao registrar empréstimo: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
     } else {
         $msg = "<p class='error'>Preencha todos os campos!</p>";
     }
 }
 
-// Consultas para os selects
+// Função para facilitar consulta ao banco
 function query($pdo, $sql) {
     $result = $pdo->query($sql);
     if (!$result) {
@@ -40,68 +42,65 @@ function query($pdo, $sql) {
     return $result;
 }
 
+// Busca dados para popular os selects
 $professores = query($pdo, "SELECT id, nome FROM professores");
 $alunos = query($pdo, "SELECT id, nome FROM alunos");
 $livros = query($pdo, "SELECT id, nome_livro FROM livros");
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
     <title>Registrar Empréstimo de Livro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Usa o mesmo CSS do buscar_livro.php -->
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
+<!-- Sidebar idêntico ao buscar_livro.php -->
 <div class="sidebar">
-    <form action="painel.php" method="get">
-        <button type="submit">🏠 Casa</button>
-    </form>
+    <form action="painel.php" method="get"><button type="submit">🏠 Casa</button></form>
     <h2>Menu</h2>
-    <form action="ver_emprestimos.php" method="get">
-        <button type="submit">Ver Empréstimos</button>
-    </form>
-    <form action="registrar_emprestimo.php" method="get">
-        <button type="submit">Registrar Empréstimo</button>
-    </form>
-    <form action="registrar_aluno.php" method="get">
-        <button type="submit">Registrar Aluno</button>
-    </form>
-    <form action="registrar_livro.php" method="get">
-        <button type="submit">Registrar Livros</button>
-    </form>
-    <form action="buscar_livros.php" method="get">
-        <button type="submit">Buscar Livros</button>
-    </form>
+    <form action="ver_emprestimos.php" method="get"><button type="submit">Ver Empréstimos</button></form>
+    <form action="registrar_emprestimo.php" method="get"><button type="submit">Registrar Empréstimo</button></form>
+    <form action="registrar_aluno.php" method="get"><button type="submit">Registrar Aluno</button></form>
+    <form action="registrar_livro.php" method="get"><button type="submit">Registrar Livros</button></form>
+    <form action="buscar_livros.php" method="get"><button type="submit">Buscar Livros</button></form>
+    <form action="registrar_professor.php" method="get"><button type="submit">Registrar Professor</button></form>
+    <form action="relatorio.php" method="get"><button type="submit">Relatório</button></form>
 </div>
 
+<!-- Conteúdo principal -->
 <div class="main-content">
-    <h2>Registrar Empréstimo</h2>
+    <h1>Registrar Empréstimo</h1>
 
-    <?php if (!empty($msg)) echo $msg; ?>
+    <!-- Mensagens de sucesso ou erro -->
+    <?php if ($msg): ?>
+        <div class="message"><?= $msg ?></div>
+    <?php endif; ?>
 
+    <!-- Formulário de registro -->
     <form action="registrar_emprestimo.php" method="post" class="form-emprestimo">
         <label for="professor">Professor Responsável:</label>
         <select name="professor_id" id="professor" required>
-            <?php while ($row = $professores->fetch()) { ?>
+            <?php while ($row = $professores->fetch()): ?>
                 <option value="<?= htmlspecialchars($row['id']) ?>"><?= htmlspecialchars($row['nome']) ?></option>
-            <?php } ?>
+            <?php endwhile; ?>
         </select>
 
         <label for="aluno">Aluno:</label>
         <select name="aluno_id" id="aluno" required>
-            <?php while ($row = $alunos->fetch()) { ?>
+            <?php while ($row = $alunos->fetch()): ?>
                 <option value="<?= htmlspecialchars($row['id']) ?>"><?= htmlspecialchars($row['nome']) ?></option>
-            <?php } ?>
+            <?php endwhile; ?>
         </select>
 
         <label for="livro">Livro:</label>
         <select name="livro_id" id="livro" required>
-            <?php while ($row = $livros->fetch()) { ?>
+            <?php while ($row = $livros->fetch()): ?>
                 <option value="<?= htmlspecialchars($row['id']) ?>"><?= htmlspecialchars($row['nome_livro']) ?></option>
-            <?php } ?>
+            <?php endwhile; ?>
         </select>
 
         <label for="data_emprestimo">Data de Empréstimo:</label>

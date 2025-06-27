@@ -176,66 +176,57 @@ a.voltar {
     display: none;
 }
 
-/* Tabela moderna em cards */
+/* ----------- Tabela Tradicional ----------- */
 
-/* Remove cabeçalho */
 thead {
-    display: none;
+    display: table-header-group; /* Mostra cabeçalho */
 }
 
-/* Tabela em bloco com espaçamento */
 table {
     width: 100%;
     max-width: 900px;
-    border-collapse: separate;
-    border-spacing: 20px 20px; /* espaço entre os cards */
-    background: transparent;
+    border-collapse: collapse; /* para bordas juntas */
+    background: #fff;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+    border-radius: 15px;
+    overflow: hidden;
 }
 
-/* Cada linha vira um card */
-tbody tr {
-    display: block;
-    background: linear-gradient(135deg, #ff9ac1 0%, #ffc1e3 100%);
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(255, 105, 180, 0.4);
-    padding: 20px 30px;
-    margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+thead tr {
+    background: rgba(255, 105, 180, 0.8);
+    color: #fff;
+    text-align: left;
+    font-weight: 700;
 }
 
-/* Hover com elevação */
-tbody tr:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(255, 105, 180, 0.7);
-}
-
-/* Células como linhas dentro do card */
-tbody td {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    font-weight: 600;
+thead th, tbody td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #ffc1e3;
+    font-size: 1rem;
     color: #4a0033;
-    font-size: 1.05rem;
-    border-bottom: 1px solid rgba(255, 182, 193, 0.5);
 }
 
-/* Última célula sem borda */
-tbody td:last-child {
-    border-bottom: none;
+tbody tr:hover {
+    background-color: #ffe1f0;
 }
 
-/* Labels antes dos dados */
-tbody td:nth-child(1)::before { content: "Título:"; font-weight: 700; color: #880e4f; width: 110px; }
-tbody td:nth-child(2)::before { content: "Autor:"; font-weight: 700; color: #880e4f; width: 110px; }
-tbody td:nth-child(3)::before { content: "ISBN:"; font-weight: 700; color: #880e4f; width: 110px; }
-/* Adapte aqui para mais colunas, exemplo:
-tbody td:nth-child(4)::before { content: "Ano:"; ... } */
+/* Botão excluir dentro da tabela */
+.botao-excluir {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.6);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
 
-/* Estilo dos labels */
-tbody td::before {
-    flex-shrink: 0;
-    text-transform: uppercase;
+.botao-excluir:hover {
+    background-color: #c0392b;
+    box-shadow: 0 7px 20px rgba(192, 57, 43, 0.8);
 }
 
 /* Responsividade */
@@ -268,20 +259,6 @@ tbody td::before {
     }
     table {
         max-width: 100%;
-        border-spacing: 10px 10px;
-    }
-    tbody td {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    tbody td::before {
-        margin-bottom: 4px;
-    }
-    form.cadastro-aluno,
-    form.cadastro-livro,
-    form.cadastro-emprestimo,
-    form.form-emprestimo {
-        padding: 20px;
-        max-width: 100%;
+        font-size: 0.9rem;
     }
 }

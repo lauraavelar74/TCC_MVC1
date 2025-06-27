@@ -1,162 +1,117 @@
 <?php
-// Seu código PHP permanece igual
-include ('db.php');
+// Conexão com o banco de dados usando PDO
+$pdo = new PDO("mysql:host=localhost;dbname=biblioteca_mvc;charset=utf8mb4", "root", "", [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Lança exceções em caso de erro
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, // Retorna os resultados como array associativo
+]);
 
-$conn = new mysqli("localhost", "root", "", "biblioteca_mvc"); 
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
+// Variável para armazenar mensagens (de sucesso ou erro)
+$msg = '';
 
-$mensagem = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Verifica se o formulário foi enviado via POST e se todos os campos obrigatórios estão presentes
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["cpf"], $_POST["nome"], $_POST["email"], $_POST["senha"])) {
+    // Remove espaços em branco dos dados recebidos
     $cpf = trim($_POST["cpf"]);
     $nome = trim($_POST["nome"]);
     $email = trim($_POST["email"]);
+    // Criptografa a senha para segurança
     $senha = password_hash($_POST["senha"], PASSWORD_DEFAULT);
 
-    if (!empty($cpf) && !empty($nome) && !empty($email) && !empty($_POST["senha"])) {
-        $sql_verificar = "SELECT cpf FROM professores WHERE cpf = ?";
-        $stmt_verificar = $conn->prepare($sql_verificar);
-        $stmt_verificar->bind_param("s", $cpf);
-        $stmt_verificar->execute();
-        $stmt_verificar->store_result();
+    // Verifica se nenhum dos campos está vazio
+    if ($cpf && $nome && $email && $_POST["senha"]) {
+        // Verifica se já existe um professor com o mesmo CPF
+        $verifica = $pdo->prepare("SELECT COUNT(*) FROM professores WHERE cpf = :cpf");
+        $verifica->execute([':cpf' => $cpf]);
 
-        if ($stmt_verificar->num_rows > 0) {
-            $mensagem = "Erro: CPF já cadastrado!";
+        // Se já existir, exibe uma mensagem de erro
+        if ($verifica->fetchColumn() > 0) {
+            $msg = "Erro: CPF já cadastrado!";
         } else {
-            $sql = "INSERT INTO professores (cpf, nome, email, senha) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssss", $cpf, $nome, $email, $senha);
-
-            if ($stmt->execute()) {
-                $mensagem = "Professor registrado com sucesso!";
-            } else {
-                $mensagem = "Erro ao registrar professor.";
-            }
-
-            $stmt->close();
+            // Caso contrário, insere o novo professor no banco de dados
+            $stmt = $pdo->prepare("INSERT INTO professores (cpf, nome, email, senha) VALUES (:cpf, :nome, :email, :senha)");
+            $stmt->execute([
+                ':cpf' => $cpf,
+                ':nome' => $nome,
+                ':email' => $email,
+                ':senha' => $senha
+            ]);
+            // Mensagem de sucesso
+            $msg = "Professor registrado com sucesso!";
         }
-        $stmt_verificar->close();
     } else {
-        $mensagem = "Todos os campos são obrigatórios!";
+        // Mensagem de erro caso algum campo esteja vazio
+        $msg = "Todos os campos são obrigatórios!";
     }
 }
-
-$conn->close();
 ?>
 
+<!-- Início do HTML -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Define o conjunto de caracteres -->
     <meta charset="UTF-8" />
+    <!-- Ajusta a visualização em dispositivos móveis -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Título da aba -->
     <title>Registrar Professor</title>
-    <style>
-        /* Centralização com flexbox */
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center; /* horizontal */
-            align-items: center; /* vertical */
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
-        }
-
-        .container {
-            background: #fff;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            text-align: left;
-        }
-
-        label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        input {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 12px;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .mensagem {
-            margin-top: 15px;
-            color: red;
-            font-weight: bold;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            color: #4CAF50;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <!-- Importa o arquivo de estilos externo -->
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <h2>Registrar Professor</h2>
-        <?php if (!empty($mensagem)) { echo "<p class='mensagem'>$mensagem</p>"; } ?>
 
-        <form action="registrar_professor.php" method="POST">
-            <label for="cpf">CPF:</label>
-            <input type="text" maxlength="11" id="cpf" name="cpf" required />
+<!-- Início do menu lateral (sidebar) -->
+<div class="sidebar">
+    <!-- Botão para voltar ao painel inicial -->
+    <form action="painel.php" method="get">
+        <button type="submit">🏠 Casa</button>
+    </form>
 
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" required />
+    <!-- Título do menu -->
+    <h2>Menu</h2>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required />
+    <!-- Botões para navegar entre as páginas do sistema -->
+    <form action="ver_emprestimos.php" method="get"><button type="submit">Ver Empréstimos</button></form>
+    <form action="registrar_emprestimo.php" method="get"><button type="submit">Registrar Empréstimo</button></form>
+    <form action="registrar_aluno.php" method="get"><button type="submit">Registrar Aluno</button></form>
+    <form action="registrar_livro.php" method="get"><button type="submit">Registrar Livros</button></form>
+    <form action="buscar_livros.php" method="get"><button type="submit">Buscar Livros</button></form>
+    <form action="registrar_professor.php" method="get"><button type="submit">Registrar Professor</button></form>
+    <form action="relatorio.php" method="get"><button type="submit">Relatório</button></form>
+</div>
 
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" required />
+<!-- Área principal de conteúdo -->
+<div class="main-content">
+    <!-- Título da seção -->
+    <h2>Registrar Professor</h2>
 
-            <button type="submit">Registrar</button>
-        </form>
-    </div>
+    <!-- Exibe a mensagem de sucesso ou erro, se existir -->
+    <?php if ($msg): ?>
+        <p class="mensagem"><?= htmlspecialchars($msg) ?></p>
+    <?php endif; ?>
+
+    <!-- Formulário de cadastro de professor -->
+    <form action="registrar_professor.php" method="POST" class="cadastro-aluno">
+        <!-- Campo CPF -->
+        <label for="cpf">CPF:</label>
+        <input type="text" maxlength="11" id="cpf" name="cpf" required />
+
+        <!-- Campo Nome -->
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" required />
+
+        <!-- Campo Email -->
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <!-- Campo Senha -->
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" required />
+
+        <!-- Botão para enviar o formulário -->
+        <button type="submit">Registrar</button>
+    </form>
+</div>
+
 </body>
 </html>
