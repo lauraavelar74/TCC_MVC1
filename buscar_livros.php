@@ -88,14 +88,12 @@ if (isset($_GET['busca_local'])) {
 
 <!-- Menu lateral (sidebar) -->
 <div class="sidebar">
-
+<!-- Título da seção de menu -->
+    <h2>Menu</h2>
     <!-- Botão de retorno para a tela inicial -->
     <form action="painel.php" method="get">
         <button type="submit">🏠 Casa</button>
     </form>
-
-    <!-- Título da seção de menu -->
-    <h2>Menu</h2>
 
     <!-- Botão para visualizar empréstimos -->
     <form action="ver_emprestimos.php" method="get">
@@ -113,8 +111,8 @@ if (isset($_GET['busca_local'])) {
     </form>
 
     <!-- Botão para cadastrar livros manualmente -->
-    <form action="registrar_livro.php" method="get">
-        <button type="submit">Registrar Livros</button>
+    <form action="ver_livro.php" method="get">
+        <button type="submit">ver Livros</button>
     </form>
 
     <!-- Botão para buscar livros via API/local -->

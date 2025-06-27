@@ -2,37 +2,35 @@
 // Inclui o arquivo de conexão com o banco de dados
 include 'db.php';
 
-// Configurações de erro e modo de retorno de dados para o PDO
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+// Inicia a sessão
+session_start();
 
-// Captura o mês atual no formato "YYYY-MM"
-$mes = date('Y-m');
+// Verifica se o formulário foi submetido
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $cpf = $_POST['cpf'];
+    $senha = $_POST['senha'];
 
-// Consulta os alunos que pegaram mais livros diferentes no mês atual
-$stmt = $pdo->prepare("
-  SELECT a.nome, COUNT(DISTINCT e.id_livro) AS total
-  FROM emprestimos e JOIN alunos a ON e.id_aluno = a.id
-  WHERE DATE_FORMAT(e.data_emprestimo, '%Y-%m') = :mes
-  GROUP BY a.nome ORDER BY total DESC LIMIT 10
-");
-// Executa a consulta com o parâmetro do mês atual
-$stmt->execute(['mes' => $mes]);
-// Armazena os resultados
-$alunos = $stmt->fetchAll();
+    // Consulta o banco de dados para verificar as credenciais
+    $stmt = $pdo->prepare("SELECT id, nome, senha FROM professores WHERE cpf = :cpf");
+    $stmt->execute(['cpf' => $cpf]);
 
-// Consulta os livros que foram emprestados por mais alunos diferentes no mês atual
-$stmt = $pdo->prepare("
-  SELECT l.nome_livro, COUNT(DISTINCT e.id_aluno) AS total
-  FROM emprestimos e JOIN livros l ON e.id_livro = l.id
-  WHERE DATE_FORMAT(e.data_emprestimo, '%Y-%m') = :mes
-  GROUP BY l.nome_livro ORDER BY total DESC LIMIT 10
-");
-// Executa a consulta
-$stmt->execute(['mes' => $mes]);
-// Armazena os resultados
-$livros = $stmt->fetchAll();
+    $professor = $stmt->fetch();
+
+    // Verifica se o professor foi encontrado e a senha está correta
+    if ($professor && password_verify($senha, $professor['senha'])) {
+        // Armazena os dados do professor na sessão
+        $_SESSION['professor_id'] = $professor['id'];
+        $_SESSION['professor_nome'] = $professor['nome'];
+
+        // Redireciona para o painel
+        header("Location: painel.php");
+        exit;
+    } else {
+        $erro = "CPF ou senha inválidos!";
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -126,13 +124,18 @@ $livros = $stmt->fetchAll();
   <div class="right-side">
     <div class="login-container">
       <h2>Login de Professor</h2>
+      
       <!-- Formulário de login -->
-      <form method="post" action="login.php">
+      <form method="post" action="index.php">
         <input type="text" name="cpf" placeholder="CPF" required>
         <input type="password" name="senha" placeholder="Senha" required>
         <button type="submit">Login</button>
       </form>
-      <!-- Aqui o link foi removido -->
+
+      <!-- Exibe erro se CPF ou senha estiverem incorretos -->
+      <?php if (isset($erro)): ?>
+        <p style="color: red;"><?php echo $erro; ?></p>
+      <?php endif; ?>
     </div>
   </div>
 </div>

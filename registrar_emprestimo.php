@@ -60,12 +60,12 @@ $livros = query($pdo, "SELECT id, nome_livro FROM livros");
 
 <!-- Sidebar idêntico ao buscar_livro.php -->
 <div class="sidebar">
-    <form action="painel.php" method="get"><button type="submit">🏠 Casa</button></form>
     <h2>Menu</h2>
+    <form action="painel.php" method="get"><button type="submit">🏠 Casa</button></form>
     <form action="ver_emprestimos.php" method="get"><button type="submit">Ver Empréstimos</button></form>
     <form action="registrar_emprestimo.php" method="get"><button type="submit">Registrar Empréstimo</button></form>
     <form action="registrar_aluno.php" method="get"><button type="submit">Registrar Aluno</button></form>
-    <form action="registrar_livro.php" method="get"><button type="submit">Registrar Livros</button></form>
+    <form action="ver_livro.php" method="get"><button type="submit">ver Livros</button></form>
     <form action="buscar_livros.php" method="get"><button type="submit">Buscar Livros</button></form>
     <form action="registrar_professor.php" method="get"><button type="submit">Registrar Professor</button></form>
     <form action="relatorio.php" method="get"><button type="submit">Relatório</button></form>
@@ -89,11 +89,14 @@ $livros = query($pdo, "SELECT id, nome_livro FROM livros");
             <?php endwhile; ?>
         </select>
 
-        <label for="aluno">Aluno:</label>
-        <select name="aluno_id" id="aluno" required>
-            <?php while ($row = $alunos->fetch()): ?>
-                <option value="<?= htmlspecialchars($row['id']) ?>"><?= htmlspecialchars($row['nome']) ?></option>
-            <?php endwhile; ?>
+        <label for="aluno_nome">Aluno:</label>
+<div style="position: relative;">
+    <input type="text" id="aluno_nome" name="aluno_nome" autocomplete="off" required />
+    <input type="hidden" id="aluno_id" name="aluno_id" required />
+    <div id="sugestoes_aluno" class="sugestoes-box"></div>
+</div>
+
+
         </select>
 
         <label for="livro">Livro:</label>
@@ -118,3 +121,43 @@ $livros = query($pdo, "SELECT id, nome_livro FROM livros");
 
 </body>
 </html>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('aluno_nome');
+    const sugestoesBox = document.getElementById('sugestoes_aluno');
+    const hiddenId = document.getElementById('aluno_id');
+
+    input.addEventListener('input', function () {
+        const query = input.value.trim();
+
+        if (query.length === 0) {
+            sugestoesBox.innerHTML = '';
+            hiddenId.value = '';
+            return;
+        }
+
+        fetch(`buscar_alunos.php?q=${encodeURIComponent(query)}`)
+            .then(res => res.text())
+            .then(html => {
+                sugestoesBox.innerHTML = html;
+                sugestoesBox.style.display = 'block';
+            });
+    });
+
+    // Evento de clique nas sugestões
+    sugestoesBox.addEventListener('click', function (e) {
+        if (e.target.classList.contains('sugestao-item')) {
+            input.value = e.target.dataset.nome;
+            hiddenId.value = e.target.dataset.id;
+            sugestoesBox.innerHTML = '';
+        }
+    });
+
+    // Esconde sugestões se clicar fora
+    document.addEventListener('click', function (e) {
+        if (!sugestoesBox.contains(e.target) && e.target !== input) {
+            sugestoesBox.innerHTML = '';
+        }
+    });
+});
+</script>

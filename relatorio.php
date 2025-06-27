@@ -1,99 +1,136 @@
+<?php
+include('db.php'); // Faz a conexão com o banco usando PDO
+
+// Consulta os 5 alunos que mais pegaram livros
+$stmtAlunos = $pdo->prepare("
+    SELECT a.nome AS aluno, COUNT(*) AS total
+    FROM emprestimos e
+    JOIN alunos a ON e.id_aluno = a.id
+    GROUP BY e.id_aluno
+    ORDER BY total DESC
+    LIMIT 5
+");
+$stmtAlunos->execute(); // Executa a query
+$alunos = $stmtAlunos->fetchAll(PDO::FETCH_ASSOC); // Recebe os resultados em array
+
+// Consulta os 5 livros mais emprestados
+$stmtLivros = $pdo->prepare("
+    SELECT l.nome_livro AS livro, COUNT(*) AS total
+    FROM emprestimos e
+    JOIN livros l ON e.id_livro = l.id
+    GROUP BY e.id_livro
+    ORDER BY total DESC
+    LIMIT 5
+");
+$stmtLivros->execute();
+$livros = $stmtLivros->fetchAll(PDO::FETCH_ASSOC); // Recebe os resultados
+?>
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Relatório de Empréstimos</title>
-    <link rel="stylesheet" href="styles.css" />
-
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawCharts);
-
-    function drawCharts() {
-        // Dados simulados dos alunos que mais pegaram livros
-        var dataAlunos = google.visualization.arrayToDataTable([
-            ['Aluno', 'Quantidade de Empréstimos'],
-            ['João', 15],
-            ['Maria', 12],
-            ['Pedro', 10],
-            ['Ana', 8],
-            ['Lucas', 5]
-        ]);
-
-        // Dados simulados dos livros mais emprestados
-        var dataLivros = google.visualization.arrayToDataTable([
-            ['Livro', 'Quantidade de Empréstimos'],
-            ['Dom Quixote', 20],
-            ['O Pequeno Príncipe', 18],
-            ['Harry Potter', 16],
-            ['1984', 12],
-            ['O Senhor dos Anéis', 10]
-        ]);
-
-        var optionsAlunos = {
-            title: 'Alunos que mais pegaram livros emprestados',
-            pieHole: 0.4,
-            width: 450,
-            height: 350
-        };
-
-        var optionsLivros = {
-            title: 'Livros mais emprestados',
-            pieHole: 0.4,
-            width: 450,
-            height: 350
-        };
-
-        var chartAlunos = new google.visualization.PieChart(document.getElementById('chart_alunos'));
-        chartAlunos.draw(dataAlunos, optionsAlunos);
-
-        var chartLivros = new google.visualization.PieChart(document.getElementById('chart_livros'));
-        chartLivros.draw(dataLivros, optionsLivros);
+  <meta charset="UTF-8" />
+  <title>Relatório</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #ffeaf5;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding-bottom: 70px; /* para não sobrepor conteúdo com botão fixo */
     }
-    </script>
+    h1 {
+      color: #c2007a;
+      margin-top: 20px;
+    }
+    .grafico-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    .grafico-box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #ccc;
+      width: 400px;
+    }
+    .btn-voltar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #c2007a;
+      color: white;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    .btn-voltar:hover {
+      background-color: #a10063;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Sidebar igual ao buscar_livro.php -->
-    <div class="sidebar">
-        <form action="painel.php" method="get">
-            <button type="submit">🏠 Casa</button>
-        </form>
+  <h1>📊 Gráficos de Empréstimos</h1>
 
-        <h2>Menu</h2>
-
-        <form action="ver_emprestimos.php" method="get">
-            <button type="submit">Ver Empréstimos</button>
-        </form>
-        <form action="registrar_emprestimo.php" method="get">
-            <button type="submit">Registrar Empréstimo</button>
-        </form>
-        <form action="registrar_aluno.php" method="get">
-            <button type="submit">Registrar Aluno</button>
-        </form>
-        <form action="registrar_livro.php" method="get">
-            <button type="submit">Registrar Livros</button>
-        </form>
-        <form action="buscar_livros.php" method="get">
-            <button type="submit">Buscar Livros</button>
-        </form>
-        <form action="registrar_professor.php" method="get">
-            <button type="submit">Registrar Professor</button>
-        </form>
-        <form action="relatorio.php" method="get">
-            <button type="submit">Relatório</button>
-        </form>
+  <div class="grafico-container">
+    <!-- Gráfico dos alunos -->
+    <div class="grafico-box">
+      <h4>Alunos que mais pegaram livros</h4>
+      <canvas id="graficoAlunos"></canvas>
     </div>
 
-    <!-- Conteúdo principal -->
-    <div class="main-content">
-    <h2>Gráficos de Empréstimos</h2>
-    <div class="relatorio-graficos">
-        <div id="chart_alunos" class="relatorio-grafico"></div>
-        <div id="chart_livros" class="relatorio-grafico"></div>
+    <!-- Gráfico dos livros -->
+    <div class="grafico-box">
+      <h4>Livros mais emprestados</h4>
+      <canvas id="graficoLivros"></canvas>
     </div>
-</div>
+  </div>
+
+  <button class="btn-voltar" onclick="history.back()">← Voltar</button>
+
+  <script>
+    const nomesAlunos = <?= json_encode(array_column($alunos, 'aluno')) ?>;
+    const totalAlunos = <?= json_encode(array_column($alunos, 'total')) ?>;
+
+    const ctxAlunos = document.getElementById('graficoAlunos');
+    new Chart(ctxAlunos, {
+      type: 'doughnut',
+      data: {
+        labels: nomesAlunos,
+        datasets: [{
+          label: 'Empréstimos',
+          data: totalAlunos,
+          backgroundColor: ['#4285F4', '#FBBC05', '#34A853', '#EA4335', '#9b59b6'],
+        }]
+      }
+    });
+
+    const nomesLivros = <?= json_encode(array_column($livros, 'livro')) ?>;
+    const totalLivros = <?= json_encode(array_column($livros, 'total')) ?>;
+
+    const ctxLivros = document.getElementById('graficoLivros');
+    new Chart(ctxLivros, {
+      type: 'doughnut',
+      data: {
+        labels: nomesLivros,
+        datasets: [{
+          label: 'Empréstimos',
+          data: totalLivros,
+          backgroundColor: ['#3498db', '#e67e22', '#1abc9c', '#e74c3c', '#8e44ad'],
+        }]
+      }
+    });
+  </script>
+
 </body>
 </html>

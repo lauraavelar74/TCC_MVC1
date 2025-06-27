@@ -54,14 +54,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <!-- Menu lateral (sidebar) -->
 <div class="sidebar">
+     <!-- Título do menu -->
+    <h2>Menu</h2>
     <!-- Botão para voltar à tela inicial -->
     <form action="painel.php" method="get">
         <button type="submit">🏠 Casa</button>
     </form>
-
-    <!-- Título do menu -->
-    <h2>Menu</h2>
-
     <!-- Botões de navegação para as demais páginas -->
     <form action="ver_emprestimos.php" method="get">
         <button type="submit">Ver Empréstimos</button>
@@ -72,8 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <form action="registrar_aluno.php" method="get">
         <button type="submit">Registrar Aluno</button>
     </form>
-    <form action="registrar_livro.php" method="get">
-        <button type="submit">Registrar Livros</button>
+    <form action="ver_livro.php" method="get">
+        <button type="submit">ver Livros</button>
     </form>
     <form action="buscar_livros.php" method="get">
         <button type="submit">Buscar Livros</button>
